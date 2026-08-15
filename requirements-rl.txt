@@ -1,0 +1,5 @@
+# PyTorch请保留当前带CUDA 11.8的版本，避免pip误装CPU版本。
+gymnasium==0.29.1
+numpy>=1.22,<2
+pygame>=2.1
+matplotlib>=3.5

@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+*.tmp
+.DS_Store
+.pytest_cache/
+.mypy_cache/
+*.matplotlib-lock
+.idea/
+runs/
+*.pt
+*.npz
