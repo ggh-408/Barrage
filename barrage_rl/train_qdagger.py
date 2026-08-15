@@ -83,8 +83,8 @@ class QDaggerConfig:
     bullet_speed_max: float = 300.0
     targeted_bullet_probability: float = 0.35
     max_episode_seconds: float = 180.0
-    selection_horizon_seconds: float = 120.0
-    evaluation_episodes: int = 100
+    evaluation_episode_limit_seconds: float = 120.0
+    evaluation_episodes: int = 200
     evaluation_workers: int = 8
     evaluation_seed: int = 1_800_000
     scenario_mix: bool = True
@@ -720,7 +720,7 @@ def _evaluate_checkpoint(
         config.evaluation_seed, config.device,
         str(output / "evaluations" / f"step_{global_step:09d}"),
         config.targeted_bullet_probability, 40.0,
-        config.selection_horizon_seconds,
+        config.evaluation_episode_limit_seconds,
         config.core_bullet_size, config.core_bullet_size,
         config.core_bullet_speed, config.core_bullet_speed,
         config.evaluation_workers,
@@ -839,7 +839,7 @@ def train_qdagger(config: QDaggerConfig) -> Path:
             "git_revision": git_revision(PROJECT_ROOT),
             "training_seed": config.seed,
             "validation_seed": config.evaluation_seed,
-            "selection_horizon_seconds": config.selection_horizon_seconds,
+            "evaluation_episode_limit_seconds": config.evaluation_episode_limit_seconds,
             "model_version": model.model_version,
         },
     )
@@ -944,7 +944,7 @@ def train_qdagger(config: QDaggerConfig) -> Path:
         last_evaluation_step = global_step
         iqm = float(result["model_iqm"])
         selection = (
-            float(result["success_at_120_ci95_low"]),
+            float(result["success_at_limit"]),
             float(result["model_cvar5"]),
             float(result["model_p5"]),
             float(result["model_p10"]),
@@ -967,7 +967,7 @@ def train_qdagger(config: QDaggerConfig) -> Path:
                 "selection_key": list(selection),
                 "is_best": improved,
                 "selection_seed": config.evaluation_seed,
-                "selection_horizon_seconds": config.selection_horizon_seconds,
+                "episode_limit_seconds": result["episode_limit_seconds"],
             },
         )
         save_qdagger_results_plot(
@@ -975,10 +975,9 @@ def train_qdagger(config: QDaggerConfig) -> Path:
             output / "results.png",
         )
         print(
-            f"evaluation step={global_step} success120={result['success_at_120']:.3f} "
-            f"lower95={result['success_at_120_ci95_low']:.3f} iqm={iqm:.3f} "
+            f"evaluation step={global_step} success={result['success_at_limit']:.3f} "
+            f"iqm={iqm:.3f} "
             f"p10={result['model_p10']:.3f} "
-            f"success={result['success_at_limit']:.3f} "
             f"best_step={best_step}{' new_best' if improved else ''}",
             flush=True,
         )
@@ -1204,9 +1203,9 @@ def main() -> None:
     parser.add_argument(
         "--async-updates", action=argparse.BooleanOptionalAction, default=True
     )
-    parser.add_argument("--evaluation-episodes", type=int, default=100)
+    parser.add_argument("--evaluation-episodes", type=int, default=200)
     parser.add_argument("--max-episode-seconds", type=float, default=180.0)
-    parser.add_argument("--selection-horizon-seconds", type=float, default=120.0)
+    parser.add_argument("--evaluation-episode-limit-seconds", type=float, default=120.0)
     parser.add_argument("--evaluation-workers", type=int, default=8)
     parser.add_argument("--device", choices=("cuda", "cpu"), default="cuda")
     parser.add_argument("--smoke-test", action="store_true")
@@ -1228,7 +1227,7 @@ def main() -> None:
         async_updates=args.async_updates,
         evaluation_episodes=args.evaluation_episodes,
         max_episode_seconds=args.max_episode_seconds,
-        selection_horizon_seconds=args.selection_horizon_seconds,
+        evaluation_episode_limit_seconds=args.evaluation_episode_limit_seconds,
         evaluation_workers=args.evaluation_workers,
         device=args.device,
     )

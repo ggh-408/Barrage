@@ -26,3 +26,11 @@ runs/visual_set_v10
 
 - The local GitHub Copilot application executable is `D:\GitHub Copilot\github.exe`.
 - This executable is the GitHub Copilot desktop application, not the GitHub CLI command `gh.exe`; do not use it as a substitute for `gh` in terminal commands.
+
+## Evaluation metric naming
+
+- Use `success_at_limit` as the single success-rate metric for training rounds and checkpoint selection. Its threshold is the configured evaluation episode limit.
+- A generic uncertainty companion such as `success_at_limit_ci95_low` is allowed when a plot or report needs confidence information; it must use the same episode limit rather than introduce another success threshold.
+- Do not introduce fixed-duration duplicates such as `success_at_120`, `success_at_120_count`, `success_at_120_ci95_low`, or similarly named `success_at_<seconds>` fields.
+- Keep the episode-limit configuration generic, such as `evaluation_episode_limit_seconds`; do not describe it as a separate selection or success horizon.
+- Do not rewrite historical artifacts under `runs` merely to remove legacy metric columns. Apply this convention to newly generated configs, manifests, summaries, histories, reports, logs, plots, and selection logic.

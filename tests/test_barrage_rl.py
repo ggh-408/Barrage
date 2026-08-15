@@ -10,7 +10,10 @@ import torch
 from Barrage import Barrage as GameBarrage, Plane as GamePlane
 from barrage_rl.env import BarrageVisionEnv, BatchedBarrageEnv
 from barrage_rl.scenarios import ScenarioSampler
-from barrage_rl.evaluate_visual_set import _bootstrap_confidence_intervals
+from barrage_rl.evaluate_visual_set import (
+    _bootstrap_confidence_intervals,
+    _wilson_lower_bound,
+)
 from barrage_rl.baselines import privileged_planner_action, privileged_planner_supervision
 from barrage_rl.model import ActorCritic
 from barrage_rl.plot import save_results_plot, save_round_summary_plot
@@ -51,9 +54,9 @@ class BarrageEnvironmentTests(unittest.TestCase):
         self.assertEqual(config.replay_capacity, 350_000)
         self.assertEqual(config.evaluation_episodes, 50)
 
-    def test_qdagger_evaluates_100_episodes_by_default(self) -> None:
+    def test_qdagger_evaluates_200_episodes_by_default(self) -> None:
         config = QDaggerConfig(checkpoint="unused.pt")
-        self.assertEqual(config.evaluation_episodes, 100)
+        self.assertEqual(config.evaluation_episodes, 200)
         self.assertEqual(config.evaluation_workers, 8)
 
     def test_live_plane_accepts_shared_numpy_action_vector(self) -> None:
@@ -437,6 +440,7 @@ class BarrageEnvironmentTests(unittest.TestCase):
         )
         self.assertLess(confidence["model_mean_ci95_low"], float(model_times.mean()))
         self.assertGreater(confidence["model_mean_ci95_high"], float(model_times.mean()))
+        self.assertAlmostEqual(_wilson_lower_bound(68, 100), 0.583372, places=5)
 
         with TemporaryDirectory() as directory:
             root = Path(directory)
@@ -470,7 +474,7 @@ class BarrageEnvironmentTests(unittest.TestCase):
             summary = root / "round_summaries.csv"
             summary.write_text(
                 "round,episodes,model_mean,model_median,model_iqm,model_p10,"
-                "model_p5,model_cvar5,success_at_limit,success_at_120_ci95_low,"
+                "model_p5,model_cvar5,success_at_limit,success_at_limit_ci95_low,"
                 "wall_episode_fraction,median_min_wall_distance\n"
                 "1,50,40,35,38,3,2,1.5,0.10,0.04,0.50,30\n"
                 "2,50,45,41,43,5,3,2.0,0.16,0.08,0.40,45\n",

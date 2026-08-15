@@ -47,7 +47,7 @@ class DAggerConfig:
     num_envs: int = 32
     bullet_count: int = 50
     collection_episode_seconds: float = 12.0
-    selection_horizon_seconds: float = 120.0
+    evaluation_episode_limit_seconds: float = 120.0
     targeted_bullet_probability: float = 0.35
     random_action_probability: float = 0.08
     seed: int = 2_601
@@ -672,7 +672,7 @@ def train_dagger(config: DAggerConfig) -> Path:
             "git_revision": git_revision(PROJECT_ROOT),
             "training_seed": config.seed,
             "validation_seed": config.evaluation_seed,
-            "selection_horizon_seconds": config.selection_horizon_seconds,
+            "evaluation_episode_limit_seconds": config.evaluation_episode_limit_seconds,
             "model_version": VisualSetRecurrentQNetwork.model_version,
             "initial_checkpoint": config.initial_checkpoint,
             "initial_checkpoint_sha256": (
@@ -727,7 +727,7 @@ def train_dagger(config: DAggerConfig) -> Path:
             str(validation_best), config.evaluation_episodes, config.bullet_count,
             config.evaluation_seed, config.device, str(round_dir / "evaluation"),
             config.targeted_bullet_probability, 40.0,
-            config.selection_horizon_seconds,
+            config.evaluation_episode_limit_seconds,
             config.core_bullet_size, config.core_bullet_size,
             config.core_bullet_speed, config.core_bullet_speed,
             config.evaluation_workers,
@@ -755,7 +755,7 @@ def train_dagger(config: DAggerConfig) -> Path:
         summaries.append(summary)
         atomic_write_json(round_dir / "summary.json", summary)
         score = (
-            evaluation.get("success_at_120_ci95_low", 0.0),
+            evaluation["success_at_limit"],
             evaluation.get("model_cvar5", 0.0),
             evaluation.get("model_p5", 0.0),
             evaluation["model_p10"],
@@ -792,7 +792,7 @@ def main() -> None:
     parser.add_argument("--bullets", type=int, default=50)
     parser.add_argument("--evaluation-episodes", type=int, default=50)
     parser.add_argument("--collection-episode-seconds", type=float, default=12.0)
-    parser.add_argument("--selection-horizon-seconds", type=float, default=120.0)
+    parser.add_argument("--evaluation-episode-limit-seconds", type=float, default=120.0)
     parser.add_argument("--seed", type=int, default=2_601)
     parser.add_argument("--device", choices=("cuda", "cpu"), default="cuda")
     parser.add_argument("--smoke-test", action="store_true")
@@ -809,7 +809,7 @@ def main() -> None:
         bullet_count=args.bullets,
         evaluation_episodes=args.evaluation_episodes,
         collection_episode_seconds=args.collection_episode_seconds,
-        selection_horizon_seconds=args.selection_horizon_seconds,
+        evaluation_episode_limit_seconds=args.evaluation_episode_limit_seconds,
         seed=args.seed,
         device=args.device,
     )

@@ -92,16 +92,18 @@ def _lower_tail_mean(values: np.ndarray, fraction: float) -> float:
     return float(ordered[:count].mean())
 
 
-def _wilson_interval(successes: int, count: int, z: float = 1.96) -> Tuple[float, float]:
+def _wilson_lower_bound(successes: int, count: int, z: float = 1.96) -> float:
+    """Return the lower bound of a two-sided Wilson score interval."""
     if count <= 0:
-        return 0.0, 0.0
+        return 0.0
     probability = successes / count
     denominator = 1.0 + z * z / count
     center = (probability + z * z / (2.0 * count)) / denominator
     margin = z * np.sqrt(
-        probability * (1.0 - probability) / count + z * z / (4.0 * count * count)
+        probability * (1.0 - probability) / count
+        + z * z / (4.0 * count * count)
     ) / denominator
-    return float(max(0.0, center - margin)), float(min(1.0, center + margin))
+    return float(max(0.0, center - margin))
 
 
 def _print_evaluation_summary(result: Dict[str, float]) -> None:
@@ -204,13 +206,8 @@ def evaluate(
     )
     timing_output["evaluation.bootstrap_ci"] = time.perf_counter() - phase_started
     phase_started = time.perf_counter()
-    success_horizon = 120.0
-    success_observable = float(max_episode_seconds) >= success_horizon
-    success_count = (
-        int(np.sum(model_array >= success_horizon - 1e-9))
-        if success_observable else 0
-    )
-    success_low, success_high = _wilson_interval(success_count, episodes)
+    success_count = int(np.count_nonzero(model_array >= max_episode_seconds))
+    success_rate = float(success_count / len(model_array))
     result = {
         "episodes": float(episodes),
         "bullets": float(bullets),
@@ -228,13 +225,10 @@ def evaluate(
         "bullet_size_max": float(bullet_size_max),
         "bullet_speed_min": float(bullet_speed_min),
         "bullet_speed_max": float(bullet_speed_max),
-        "success_at_limit": float(np.mean(model_array >= max_episode_seconds)),
-        "selection_horizon_seconds": success_horizon,
-        "success_at_120": float(success_count / episodes),
-        "success_at_120_count": float(success_count),
-        "success_at_120_ci95_low": success_low,
-        "success_at_120_ci95_high": success_high,
-        "success_at_120_observable": float(success_observable),
+        "success_at_limit": success_rate,
+        "success_at_limit_ci95_low": _wilson_lower_bound(
+            success_count, len(model_array)
+        ),
         "failure_before_1s": float(np.mean(model_array < 1.0)),
         "failure_before_10s": float(np.mean(model_array < 10.0)),
         "targeted_bullet_probability": float(targeted_bullet_probability),

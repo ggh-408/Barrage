@@ -77,6 +77,26 @@ def _read_metrics(metrics_path: Path) -> Dict[str, List[float]]:
     return columns
 
 
+def _ensure_success_at_limit_ci95_low(data: Dict[str, List[float]]) -> None:
+    """Reconstruct the generic success-rate lower bound for legacy histories."""
+    if "success_at_limit_ci95_low" in data:
+        return
+    rates = data["success_at_limit"]
+    episode_counts = data.get("episodes")
+    if episode_counts is None:
+        data["success_at_limit_ci95_low"] = list(rates)
+        return
+
+    from .evaluate_visual_set import _wilson_lower_bound
+
+    lower_bounds = []
+    for rate, count in zip(rates, episode_counts):
+        episode_count = max(0, int(round(count)))
+        success_count = int(round(rate * episode_count))
+        lower_bounds.append(_wilson_lower_bound(success_count, episode_count))
+    data["success_at_limit_ci95_low"] = lower_bounds
+
+
 def _read_evaluation_episodes(path: Optional[Path]) -> Dict[str, np.ndarray]:
     if path is None or not path.exists():
         return {}
@@ -204,16 +224,13 @@ def save_round_summary_plot(
     def values(name: str) -> np.ndarray:
         return np.asarray(data[name], dtype=float)
 
-    # Preserve plot compatibility with historical DAgger summaries. Current
-    # runs provide the true 120-second and lower-tail fields.
-    if "success_at_120" not in data:
-        data["success_at_120"] = data["success_at_limit"]
-    if "success_at_120_ci95_low" not in data:
-        data["success_at_120_ci95_low"] = data["success_at_limit"]
+    # Preserve plot compatibility with historical DAgger summaries that may
+    # not contain the current lower-tail fields.
     if "model_cvar5" not in data:
         data["model_cvar5"] = data["model_p10"]
     if "model_p5" not in data:
         data["model_p5"] = data["model_p10"]
+    _ensure_success_at_limit_ci95_low(data)
     if "failure_before_1s" not in data:
         data["failure_before_1s"] = np.zeros_like(values("model_p10"))
     if "failure_before_10s" not in data:
@@ -251,7 +268,7 @@ def save_round_summary_plot(
     selection_order = np.lexsort(
         (
             values("model_iqm"), values("model_p10"), values("model_p5"),
-            values("model_cvar5"), values("success_at_120_ci95_low"),
+            values("model_cvar5"), values("success_at_limit"),
         )
     )
     best_index = int(selection_order[-1])
@@ -262,46 +279,43 @@ def save_round_summary_plot(
     )
     performance.set_title("Survival performance")
     performance.set_ylabel("Survival seconds")
-    performance.legend(fontsize=9)
+    performance_legend = performance.legend(fontsize=9, framealpha=0.95)
+    performance_legend.set_zorder(20)
 
     reliability = axes[0, 1]
     reliability.plot(
         rounds, 100.0 * values("success_at_limit"), color="#2ca02c",
-        marker="o", linewidth=2.5, label="Reached episode limit",
+        marker="o", linewidth=2.5, label="Reached episode limit", zorder=3,
+    )
+    reliability.plot(
+        rounds, 100.0 * values("success_at_limit_ci95_low"), color="#1b6f3a",
+        marker="s", linestyle="--", linewidth=2.2,
+        label="95% CI lower bound", zorder=3,
     )
     reliability.set_title("Reliability and difficult-case floor")
     reliability.set_ylabel("Reached episode limit (%)", color="#2ca02c")
     reliability.tick_params(axis="y", labelcolor="#2ca02c")
     reliability.set_ylim(bottom=0)
-    p10_axis = reliability.twinx()
-    p10_axis.plot(
-        rounds, values("model_p10"), color="#d62728", marker="s", linewidth=2.2,
-        label="P10 survival",
-    )
-    p10_axis.set_ylabel("P10 survival seconds", color="#d62728")
-    p10_axis.tick_params(axis="y", labelcolor="#d62728")
-    p10_axis.set_ylim(bottom=0)
-    left_handles, left_labels = reliability.get_legend_handles_labels()
-    right_handles, right_labels = p10_axis.get_legend_handles_labels()
-    reliability.legend(
-        left_handles + right_handles, left_labels + right_labels,
-        loc="upper left",
-    )
+    reliability.set_axisbelow(True)
+    reliability_legend = reliability.legend(loc="upper left", framealpha=0.95)
+    reliability_legend.set_zorder(20)
 
     rollout = axes[1, 0]
-    for name, label, marker in (
-        ("model_mean", "Mean", "o"),
-        ("model_median", "Median", "s"),
-        ("model_iqm", "IQM", "D"),
-        ("model_p10", "P10", "^"),
+    for name, label, marker, color in (
+        ("model_p10", "P10", "o", "#d62728"),
+        ("model_p5", "P5", "s", "#ff7f0e"),
+        ("model_cvar5", "CVaR5", "D", "#2ca02c"),
     ):
         rollout.plot(
             rounds, values(name), marker=marker, linewidth=2.2, label=label,
+            color=color, zorder=3,
         )
     rollout.set_title("Post-round rollout statistics")
     rollout.set_ylabel("Survival seconds")
     rollout.set_ylim(bottom=0)
-    rollout.legend(loc="upper right")
+    rollout.set_axisbelow(True)
+    rollout_legend = rollout.legend(loc="upper right", framealpha=0.95)
+    rollout_legend.set_zorder(20)
 
     safety = axes[1, 1]
     safety.plot(
@@ -321,14 +335,16 @@ def save_round_summary_plot(
     wall_axis.tick_params(axis="y", labelcolor="#9467bd")
     left_handles, left_labels = safety.get_legend_handles_labels()
     right_handles, right_labels = wall_axis.get_legend_handles_labels()
-    safety.legend(
+    safety_legend = wall_axis.legend(
         left_handles + right_handles, left_labels + right_labels,
-        fontsize=8, loc="upper right",
+        fontsize=8, loc="upper right", framealpha=0.95,
     )
+    safety_legend.set_zorder(20)
 
     for axis in axes.ravel():
         axis.set_xlabel("DAgger round")
         axis.set_xticks(rounds)
+        axis.set_axisbelow(True)
         axis.grid(True, alpha=0.22)
     figure.text(
         0.5, 0.025,
@@ -373,16 +389,13 @@ def save_qdagger_results_plot(
     def values(name: str) -> np.ndarray:
         return np.asarray(data[name], dtype=float)
 
-    # Older v8 histories remain plottable; current fields are reconstructed only
-    # where the legacy CSV contains enough information.
-    if "success_at_120" not in data:
-        data["success_at_120"] = data["success_at_limit"]
-    if "success_at_120_ci95_low" not in data:
-        data["success_at_120_ci95_low"] = data["success_at_limit"]
+    # Older v8 histories remain plottable; lower-tail fields are reconstructed
+    # only where the legacy CSV contains enough information.
     if "model_cvar5" not in data:
         data["model_cvar5"] = data["model_p10"]
     if "model_p5" not in data:
         data["model_p5"] = data["model_p10"]
+    _ensure_success_at_limit_ci95_low(data)
     if "failure_before_1s" not in data:
         data["failure_before_1s"] = np.zeros_like(values("model_p10"))
     if "failure_before_10s" not in data:
@@ -417,7 +430,7 @@ def save_qdagger_results_plot(
         (
             values("model_iqm"), values("model_p10"), values("model_p5"),
             values("model_cvar5"),
-            values("success_at_120_ci95_low"),
+            values("success_at_limit"),
         )
     )
     best_index = int(selection_order[-1])
@@ -434,12 +447,18 @@ def save_qdagger_results_plot(
         values("model_iqm"),
         values("model_mean_ci95_high"),
     ))))
-    performance.legend(fontsize=9)
+    performance_legend = performance.legend(fontsize=9, framealpha=0.95)
+    performance_legend.set_zorder(20)
 
     reliability = axes[0, 1]
     reliability.plot(
         steps, 100.0 * values("success_at_limit"), color="#2ca02c",
-        marker="o", linewidth=2.5, label="Reached episode limit",
+        marker="o", linewidth=2.5, label="Reached episode limit", zorder=3,
+    )
+    reliability.plot(
+        steps, 100.0 * values("success_at_limit_ci95_low"), color="#1b6f3a",
+        marker="s", linestyle="--", linewidth=2.2,
+        label="95% CI lower bound", zorder=3,
     )
     reliability.set_title("Reliability and difficult-case floor")
     reliability.set_ylabel("Reached episode limit (%)", color="#2ca02c")
@@ -448,40 +467,30 @@ def save_qdagger_results_plot(
         bottom=0,
         top=1.10 * np.nanmax(100.0 * values("success_at_limit")),
     )
-    p10_axis = reliability.twinx()
-    p10_axis.plot(
-        steps, values("model_p10"), color="#d62728", marker="s",
-        linewidth=2.2, label="P10 survival",
-    )
-    p10_axis.set_ylabel("P10 survival seconds", color="#d62728")
-    p10_axis.tick_params(axis="y", labelcolor="#d62728")
-    p10_axis.set_ylim(bottom=0, top=1.10 * np.nanmax(values("model_p10")))
-    left_handles, left_labels = reliability.get_legend_handles_labels()
-    right_handles, right_labels = p10_axis.get_legend_handles_labels()
-    reliability.legend(
-        left_handles + right_handles, left_labels + right_labels,
-        loc="upper left",
-    )
+    reliability.set_axisbelow(True)
+    reliability_legend = reliability.legend(loc="upper left", framealpha=0.95)
+    reliability_legend.set_zorder(20)
 
     rollout = axes[1, 0]
-    for name, label, marker in (
-        ("model_mean", "Mean", "o"),
-        ("model_median", "Median", "s"),
-        ("model_iqm", "IQM", "D"),
-        ("model_p10", "P10", "^"),
+    for name, label, marker, color in (
+        ("model_p10", "P10", "o", "#d62728"),
+        ("model_p5", "P5", "s", "#ff7f0e"),
+        ("model_cvar5", "CVaR5", "D", "#2ca02c"),
     ):
         rollout.plot(
             steps, values(name), marker=marker, linewidth=2.2, label=label,
+            color=color, zorder=3,
         )
     rollout.set_title("Post-checkpoint rollout statistics")
     rollout.set_ylabel("Survival seconds")
     rollout.set_ylim(bottom=0, top=1.10 * np.nanmax(np.concatenate((
-        values("model_mean"),
-        values("model_median"),
-        values("model_iqm"),
         values("model_p10"),
+        values("model_p5"),
+        values("model_cvar5"),
     ))))
-    rollout.legend(loc="upper right")
+    rollout.set_axisbelow(True)
+    rollout_legend = rollout.legend(loc="upper right", framealpha=0.95)
+    rollout_legend.set_zorder(20)
 
     safety = axes[1, 1]
     safety.plot(
@@ -507,14 +516,16 @@ def save_qdagger_results_plot(
     )
     left_handles, left_labels = safety.get_legend_handles_labels()
     right_handles, right_labels = wall_axis.get_legend_handles_labels()
-    safety.legend(
+    safety_legend = wall_axis.legend(
         left_handles + right_handles, left_labels + right_labels,
-        fontsize=8, loc="upper right",
+        fontsize=8, loc="upper right", framealpha=0.95,
     )
+    safety_legend.set_zorder(20)
 
     for axis in axes.ravel():
         axis.set_xlabel("Training steps (millions)")
         axis.set_xticks(steps)
+        axis.set_axisbelow(True)
         axis.grid(True, alpha=0.22)
     figure.text(
         0.5, 0.025,

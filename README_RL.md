@@ -30,7 +30,7 @@ conda activate barrage && cd /d C:\Users\pc\Desktop\python\Barrage && python -m 
 第二阶段 QDagger 从第一阶段 `best.pt` 开始，训练长时程价值、失败尾和安全头，并用固定的独立核心任务评估集选模：
 
 ```cmd
-conda activate barrage && cd /d C:\Users\pc\Desktop\python\Barrage && python -m barrage_rl.train_qdagger runs\visual_set_v9\best.pt --output-dir runs\visual_set_v9_qdagger --evaluation-episodes 100 --evaluation-workers 8 --device cuda
+conda activate barrage && cd /d C:\Users\pc\Desktop\python\Barrage && python -m barrage_rl.train_qdagger runs\visual_set_v9\best.pt --output-dir runs\visual_set_v9_qdagger --evaluation-episodes 200 --evaluation-workers 8 --device cuda
 ```
 
 训练器拒绝覆盖非空 run。每次实验都应使用新目录；checkpoint、配置、CSV和图使用原子写入，并记录源 checkpoint 哈希。
