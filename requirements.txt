@@ -1,0 +1,11 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
+
+gymnasium==0.29.1
+numpy==1.26.4
+pygame==2.6.1
+matplotlib==3.11.1
+numba==0.61.2
+llvmlite==0.44.0
+torch==2.10.0+cu128
+pytest==9.0.3
+psutil==7.0.0

@@ -1,0 +1,6 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 5 230F",
+  "logical_processors": 10,
+  "os": "Microsoft Windows NT 10.0.26200.0",
+  "gpu": "NVIDIA GeForce RTX 5060, 8151 MiB, 610.62"
+}

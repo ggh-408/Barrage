@@ -1,0 +1,8 @@
+{
+  "new_episodes": 0,
+  "own_route_wall_eligibility": true,
+  "renewed_horizon_lifetime": true,
+  "repeated_renewals": 31,
+  "episode_reset_clears_history": true,
+  "limitation": "Synthetic control-flow contracts; physical safety requires replay and complete episode checks"
+}

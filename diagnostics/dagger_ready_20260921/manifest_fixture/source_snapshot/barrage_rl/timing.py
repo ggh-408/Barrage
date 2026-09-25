@@ -1,0 +1,7 @@
+"""Shared fixed-step clock for the game, training and deployment tools."""
+
+PHYSICS_FPS = 120
+PHYSICS_DT = 1.0 / PHYSICS_FPS
+DEFAULT_ACTION_REPEAT = 4
+DECISION_DT = DEFAULT_ACTION_REPEAT * PHYSICS_DT
+DECISION_HZ = PHYSICS_FPS / DEFAULT_ACTION_REPEAT
