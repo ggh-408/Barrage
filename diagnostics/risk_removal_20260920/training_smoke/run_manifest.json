@@ -1,0 +1,64 @@
+{
+  "git_branch": "unavailable",
+  "training_seed": 4701,
+  "collection_seed": 1898428377,
+  "collection_seed_list": [],
+  "repeat_collection_seeds": false,
+  "validation_seed": 1499836764,
+  "selection_metric": "success_at_limit",
+  "selection_mode": "success_at_limit",
+  "control_timing": {
+    "collection_causal_action_delay_steps": 0,
+    "evaluation_causal_action_delay_steps": 0,
+    "initial_action": 0,
+    "teacher_labels_after_pending_action": true
+  },
+  "task": {
+    "bullet_count": 300,
+    "targeted_bullet_probability": 0.1,
+    "bullet_size": 5,
+    "bullet_speed": 240.0,
+    "observation_size": 384,
+    "action_repeat": 4,
+    "episode_limit_seconds": 2.0,
+    "wall_collision": false,
+    "randomize_initial_phase": false,
+    "physics_fps": 120
+  },
+  "evaluation_task": {
+    "bullet_count": 300,
+    "targeted_bullet_probability": 0.1,
+    "bullet_size": 5,
+    "bullet_speed": 240.0,
+    "observation_size": 384,
+    "action_repeat": 4,
+    "episode_limit_seconds": 2.0,
+    "wall_collision": false,
+    "randomize_initial_phase": false,
+    "physics_fps": 120
+  },
+  "source_files": [
+    "Barrage.py",
+    "barrage_rl/runtime_core.py",
+    "barrage_rl/env.py",
+    "barrage_rl/live_screen.py",
+    "barrage_rl/image_oracle.py",
+    "barrage_rl/tracked_policy.py",
+    "barrage_rl/action_geometry.py",
+    "barrage_rl/action_selector.py",
+    "barrage_rl/tracked_collection.py",
+    "barrage_rl/baselines.py",
+    "barrage_rl/recovery_planner.py",
+    "barrage_rl/causal_control.py",
+    "barrage_rl/parallel_evaluation.py",
+    "barrage_rl/evaluate_tracked_policy.py",
+    "barrage_rl/train_tracked_policy.py",
+    "barrage_rl/task_spec.py"
+  ],
+  "initial_checkpoint": "C:\\Users\\pc\\Desktop\\python\\Barrage\\diagnostics\\risk_removal_20260920\\policy_teacher_cost.pt",
+  "model_parameters": {
+    "trainable_scope": "full",
+    "trainable": 753986,
+    "total": 753986
+  }
+}

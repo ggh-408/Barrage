@@ -1,0 +1,5 @@
+{
+  "status": "interrupted_by_user",
+  "reason": "Stop additional testing and deploy the best completed configuration",
+  "completed_paired_full_duration_validation": false
+}

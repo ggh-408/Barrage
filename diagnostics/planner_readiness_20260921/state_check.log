@@ -1,0 +1,1 @@
+{"new_complete_episodes": 0, "saved_states": 33, "short_route_replays": 33, "survived_fixed_routes": 31, "cold_first_seconds": 8.696191999973962, "warm_mean_ms": 57.266868749138666, "limitation": "Failure-biased snapshots; short open-loop routes include unknowable future respawns; no success-rate claim"}

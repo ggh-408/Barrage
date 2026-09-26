@@ -1,0 +1,47 @@
+{
+  "mode": "fresh",
+  "episodes": 3000,
+  "success_at_limit": 1.0,
+  "success_count": 3000,
+  "failure_seeds": [],
+  "smoke_test": false,
+  "evaluation_episode_limit_seconds": 120.0,
+  "controller": {
+    "kind": "receding",
+    "algorithm": "receding_continuation",
+    "config": {
+      "search_depth": 15,
+      "beam_width": 8,
+      "wall_reserve_pixels": 48.0,
+      "wall_cost_weight": 1.0,
+      "velocity_error_floor": 2.0,
+      "compiled_beam": true,
+      "search_workers": 9,
+      "preserve_plans": true,
+      "interval_consensus": true
+    },
+    "experimental_controller": "planner_readiness_20260921_parallel",
+    "ranking_variant": "commit_safe_ranking",
+    "ranking_safety_basis": "nominal_pixel",
+    "trigger_statistics_basis": "short_commitment_and_certificate",
+    "uncertainty_semantics": "observed-track sensitivity; excludes future births and association errors",
+    "source_files": [
+      "barrage_rl/window_runtime.py",
+      "barrage_rl/window_planner.py",
+      "barrage_rl/window_planner_kernel.py",
+      "barrage_rl/window_pixel_geometry.py",
+      "barrage_rl/window_tracker.py",
+      "barrage_rl/window_tracker_kernel.py"
+    ],
+    "feature_expected_bullet_count": 250,
+    "evaluation_runtime": "optimized",
+    "evaluation_search_depth": 15,
+    "planning_horizon_seconds": 0.5,
+    "evaluation_horizon_override": true
+  },
+  "checkpoint_round": 1,
+  "source_contents_unchanged": true,
+  "checkpoint_contents_unchanged": true,
+  "elapsed_seconds": 29269.2146593,
+  "interpretation": "Excluded training and fixed held-out seeds; independent of historical evaluation results"
+}

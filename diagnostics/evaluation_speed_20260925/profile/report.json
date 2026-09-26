@@ -1,0 +1,172 @@
+{
+  "python": "3.12.13",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "logical_processors": 10,
+  "torch": "2.10.0+cu128",
+  "numba": "0.61.2",
+  "llvmlite": "0.44.0",
+  "gpu": "NVIDIA GeForce RTX 5060",
+  "checkpoint": "best.pt",
+  "episode_seeds": [
+    2099202853,
+    2126245084,
+    2087119034,
+    2020269467,
+    2068481564,
+    2124494343,
+    2059024253,
+    2134809022,
+    2132563059,
+    2123323374,
+    2121516823,
+    2116164003,
+    2119792350,
+    2074363809,
+    2010400080,
+    2044771947,
+    2105373659,
+    2110688585,
+    2031679448,
+    2135264132
+  ],
+  "environment": {
+    "OMP_WAIT_POLICY": null,
+    "KMP_BLOCKTIME": null,
+    "NUMBA_THREADING_LAYER": null
+  },
+  "planner_implementation": "window",
+  "seed_source": "diagnostics\\targeted_dagger_fresh_20260924_101738_193311\\evaluation\\evaluation_episodes.csv",
+  "evaluation_episode_limit_seconds": 10.0,
+  "scope": "Paired throughput benchmark using the existing evaluator. Short episodes do not establish long-episode reliability.",
+  "records": [
+    {
+      "name": "r0_w9_b20_s4",
+      "workers": 9,
+      "batch_size": 20,
+      "search_workers": 4,
+      "elapsed_seconds": 38.46263550000003,
+      "decisions": 6000,
+      "decisions_per_second": 155.99555053891186,
+      "rollout_decisions_per_second": 231.6394136269592,
+      "steady_decisions_per_second": 304.937307024271,
+      "action_mismatches": 0,
+      "episode_csv_exact": true,
+      "success_at_limit": 1.0,
+      "timings": {
+        "agent_seconds": 7.166442200010351,
+        "guard_seconds": 3.9261507999690366,
+        "environment_wait_seconds": 12.509733399987454,
+        "startup_seconds": 5.269371800000954,
+        "rollout_seconds": 25.902327699994203,
+        "calls": 300
+      },
+      "resource_samples": [
+        {
+          "time": 1790347056.533176,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 13185568768,
+          "gpu_percent": 5.0,
+          "gpu_memory_mib": 1254.0
+        },
+        {
+          "time": 1790347059.6136832,
+          "system_cpu_percent": 30.233739837398378,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 13055504384,
+          "gpu_percent": 1.0,
+          "gpu_memory_mib": 1336.0
+        },
+        {
+          "time": 1790347062.7401152,
+          "system_cpu_percent": 26.273726273726272,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 13026983936,
+          "gpu_percent": 1.0,
+          "gpu_memory_mib": 1336.0
+        },
+        {
+          "time": 1790347065.8207705,
+          "system_cpu_percent": 25.380710659898476,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 13017317376,
+          "gpu_percent": 2.0,
+          "gpu_memory_mib": 1336.0
+        },
+        {
+          "time": 1790347068.9288445,
+          "system_cpu_percent": 35.22898842476094,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 13008973824,
+          "gpu_percent": 15.0,
+          "gpu_memory_mib": 1336.0
+        },
+        {
+          "time": 1790347072.1175623,
+          "system_cpu_percent": 96.92154915590864,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 9330049024,
+          "gpu_percent": 3.0,
+          "gpu_memory_mib": 1336.0
+        },
+        {
+          "time": 1790347075.402598,
+          "system_cpu_percent": 74.55482661668229,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 8220450816,
+          "gpu_percent": 3.0,
+          "gpu_memory_mib": 1438.0
+        },
+        {
+          "time": 1790347078.480351,
+          "system_cpu_percent": 71.44303797468355,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 8159936512,
+          "gpu_percent": 3.0,
+          "gpu_memory_mib": 1442.0
+        },
+        {
+          "time": 1790347081.58026,
+          "system_cpu_percent": 70.05050505050505,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 8112353280,
+          "gpu_percent": 4.0,
+          "gpu_memory_mib": 1442.0
+        },
+        {
+          "time": 1790347084.667877,
+          "system_cpu_percent": 74.44444444444444,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 8089587712,
+          "gpu_percent": 11.0,
+          "gpu_memory_mib": 1442.0
+        },
+        {
+          "time": 1790347087.7844892,
+          "system_cpu_percent": 66.4321608040201,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 8047792128,
+          "gpu_percent": 12.0,
+          "gpu_memory_mib": 1442.0
+        },
+        {
+          "time": 1790347090.8797805,
+          "system_cpu_percent": 68.87316826680141,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 8042242048,
+          "gpu_percent": 20.0,
+          "gpu_memory_mib": 1442.0
+        },
+        {
+          "time": 1790347093.9863033,
+          "system_cpu_percent": 67.25263686589653,
+          "memory_total_bytes": 25460809728,
+          "memory_available_bytes": 8065675264,
+          "gpu_percent": 13.0,
+          "gpu_memory_mib": 1439.0
+        }
+      ]
+    }
+  ],
+  "checkpoint_contents_unchanged": true,
+  "source_contents_unchanged": true
+}

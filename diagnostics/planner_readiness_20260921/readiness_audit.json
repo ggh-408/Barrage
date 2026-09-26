@@ -1,0 +1,56 @@
+{
+  "goal": "Locate and correct three evidenced planner mechanisms to support bounded retraining preparation",
+  "mechanism_corrections_verified": true,
+  "experimental_retraining_ready": true,
+  "production_promotion_ready": false,
+  "formal_fixed_200_completed": false,
+  "training_started": false,
+  "production_sources_unchanged": true,
+  "new_complete_episode_executions": 20,
+  "unique_complete_episode_seeds": 20,
+  "offline_short_route_replays": 46,
+  "no_additional_episode_queue": true,
+  "evaluated_candidate": "candidate_controller.py + readiness_kernel.py",
+  "optimized_candidate": "candidate_parallel.py + readiness_kernel_parallel.py",
+  "optimized_candidate_full_episode_test": false,
+  "optimization_evidence": "Independent per-route loops; exact metric parity and saved-state action parity only",
+  "requirements": [
+    {
+      "requirement": "Prediction-error mechanism",
+      "evidence": "mechanism.json; attribution.json; source uses last-eight-fit age cap and consistent initial position width",
+      "status": "verified within observed-track sensitivity model"
+    },
+    {
+      "requirement": "Full-route ranking",
+      "evidence": "13 frozen route sets: baseline 0/13, integrated exposure 13/13; state_check 31/33",
+      "status": "verified on fixed counterexamples"
+    },
+    {
+      "requirement": "Historical route continuation",
+      "evidence": "contracts.json: own-route wall test, 31 full-horizon renewals, episode reset",
+      "status": "verified"
+    },
+    {
+      "requirement": "Paired complete episodes including successes",
+      "evidence": "paired_summary.json: 11/20 to 20/20, nine rescued, zero regressions",
+      "status": "verified on bounded pool"
+    },
+    {
+      "requirement": "Image boundary, architecture, unchanged deployment",
+      "evidence": "isolated installer binds planner methods only; production file byte comparisons; checkpoint model contents comparison",
+      "status": "verified"
+    },
+    {
+      "requirement": "Runtime cost and stability",
+      "evidence": "performance.json; parallel_check.json; 1/3/9 workers and 9/36 batches",
+      "status": "verified for existing-state model/planner path"
+    }
+  ],
+  "limitations": [
+    "20/20 development result does not establish population success or formal acceptance",
+    "Unobserved future births and association errors are outside the linear sensitivity model",
+    "Integrated overlap sensitivity is not a calibrated collision probability",
+    "Parallel optimization was not rerun on complete episodes; evaluated serial candidate remains reproducible",
+    "No training collection or optimizer changes were made; benchmark those paths when integrating candidate into training"
+  ]
+}

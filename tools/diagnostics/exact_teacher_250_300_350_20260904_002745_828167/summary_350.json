@@ -1,0 +1,12 @@
+{
+  "stage": 3,
+  "bullet_count": 350,
+  "episodes": 300,
+  "passed": 299,
+  "failed": 1,
+  "success_at_limit": 0.9966666666666667,
+  "success_at_limit_ci95_low": 0.9813628354450568,
+  "mean_survival_seconds": 119.93391666666668,
+  "elapsed_seconds": 9886.355754199998,
+  "episodes_per_second": 0.030344851779438718
+}
