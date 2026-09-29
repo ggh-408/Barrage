@@ -14,7 +14,7 @@
 | AI 决策耗时 | 同次窗口测试，共 3600 次决策 | 平均 **8.30 ms**，P95 **10.03 ms**，最大 **11.64 ms** |
 | 已完成长测 | 3000 局，每局上限 120 秒 | **3000/3000** 局达到上限；95% 置信区间下限为 **99.87%** |
 
-窗口使用的 [best.pt](best.pt) 与已完成长测保存的模型参数经直接比较一致。长测采用匹配实验控制器、名义像素安全排序和下述规划配置，详见[评估汇总](diagnostics/targeted_dagger_fresh_20260924_101738_193311/evaluation/evaluation_summary.json)。该成绩对应当时的实现；优化运行时及兼容代码清理后尚未完成新的 3000 局复验。
+窗口使用的 [best.pt](best.pt) 与已完成长测保存的模型参数经直接比较一致。9 月 25 日的 3000 局长测采用 `optimized` 评估运行时、`window` 跟踪器、匹配的窗口控制器和名义像素安全排序，详见[实验配置](diagnostics/targeted_dagger_fresh_20260925_224928_265538/experiment_manifest.json)、[评估配置](diagnostics/targeted_dagger_fresh_20260925_224928_265538/evaluation/evaluation_config.json)及[评估汇总](diagnostics/targeted_dagger_fresh_20260925_224928_265538/evaluation/evaluation_summary.json)。后续版本 12 权重校验及训练兼容代码清理不改变该权重的优化评估决策路径；实时窗口性能以单独的窗口测试为准。
 
 ## 使用入口
 
